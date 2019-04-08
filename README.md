@@ -9,8 +9,9 @@ supported as in the Nim programming language.
 The module supports annotation statements, does not delete comment
 statements and redundant blank characters, leaving the original style
 and you can specify annotation delimiters.
-Here is an example of how to use the configuration file parser:
 
+Here is an example of how to use the configuration file parser:
+=============================================================
     import
       os, parseini, strutils, streams
 
@@ -36,7 +37,7 @@ Here is an example of how to use the configuration file parser:
 
 
 This is a simple example of a configuration file.
-==============================
+===============================================
 
     charset="utf-8"
     [Package]
@@ -48,7 +49,7 @@ This is a simple example of a configuration file.
     email="lihaifeng@wxm.com"
 
 Creating a configuration file.
-==============================
+============================
 
     import parseini
     var cfg=newConfig()
@@ -62,7 +63,7 @@ Creating a configuration file.
     echo cfg
 
 Reading a configuration file.
-=============================
+===========================
 
     import parseini
     var cfg = loadConfig("config.ini")
@@ -75,7 +76,7 @@ Reading a configuration file.
     echo pname & "\n" & name & "\n" & qq & "\n" & email
 
 Modifying a configuration file.
-===============================
+=============================
 
     import parseini
     var cfg = loadConfig("config.ini")
@@ -84,7 +85,7 @@ Modifying a configuration file.
     echo cfg
 
 Deleting a section key in a configuration file.
-===============================================
+=============================================
 
     import parseini
     var cfg = loadConfig("config.ini")
