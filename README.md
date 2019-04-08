@@ -36,11 +36,10 @@ and you can specify annotation delimiters.
     else:
       echo("cannot open: " & paramStr(1))
 
-]##
 
 This is a simple example of a configuration file.
 ==============================
-.. code-block:: nim
+
 
     charset="utf-8"
     [Package]
