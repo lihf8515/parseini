@@ -46,7 +46,12 @@ This is a simple example of a configuration file.
     name="lihf8515"
     qq="10214028"
     email="lihaifeng@wxm.com"
-
+    
+Specifies the annotation symbol, the default annotation symbol is "#;"
+=====================================================================
+    import parseini
+    var cfg=loadConfig("config.ini","&")
+    
 Support for read-write multivalued key
 ======================================
     [Author]
