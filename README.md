@@ -12,6 +12,7 @@ and you can specify annotation delimiters.
 
 Here is an example of how to use the configuration file parser:
 =============================================================
+.. code-block:: nim
     import
       os, parseini, strutils, streams
 
@@ -49,6 +50,7 @@ This is a simple example of a configuration file.
     
 Specifies the annotation symbol, the default annotation symbol is "#;"
 =====================================================================
+.. code-block:: nim
     import parseini
     var cfg=loadConfig("config.ini","&")
     
@@ -57,7 +59,7 @@ Support for read-write multivalued key
     [Author]
     name="lihf8515"
     name = Li haifeng
-
+.. code-block:: nim
     import parseini
     var cfg=loadConfig("config.ini")
     cfg.add("Author","name","lhf")
@@ -65,7 +67,7 @@ Support for read-write multivalued key
     
 Creating a configuration file.
 ============================
-
+.. code-block:: nim
     import parseini
     var cfg=newConfig()
     cfg.set("","charset","utf-8")
@@ -79,7 +81,7 @@ Creating a configuration file.
 
 Reading a configuration file.
 ===========================
-
+.. code-block:: nim
     import parseini
     var cfg = loadConfig("config.ini")
     var charset = cfg.get("","charset")
@@ -92,7 +94,7 @@ Reading a configuration file.
 
 Modifying a configuration file.
 =============================
-
+.. code-block:: nim
     import parseini
     var cfg = loadConfig("config.ini")
     cfg.set("Author","name","lhf")
@@ -101,7 +103,7 @@ Modifying a configuration file.
 
 Deleting a section key in a configuration file.
 =============================================
-
+.. code-block:: nim
     import parseini
     var cfg = loadConfig("config.ini")
     cfg.del("Author","email")
