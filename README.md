@@ -54,8 +54,8 @@ Support for reading multivalued KEY
     name = Li haifeng
 
     import parseini
-    var cfg=newConfig()
-    cfg.gets("Author","name")
+    var cfg=loadConfig("config.ini")
+    echo cfg.gets("Author","name")
     
 Creating a configuration file.
 ============================
