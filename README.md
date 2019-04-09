@@ -47,14 +47,15 @@ This is a simple example of a configuration file.
     qq="10214028"
     email="lihaifeng@wxm.com"
 
-Support for reading multivalued KEY
-===================================
+Support for read-write multivalued key
+======================================
     [Author]
     name="lihf8515"
     name = Li haifeng
 
     import parseini
     var cfg=loadConfig("config.ini")
+    cfg.add("Author","name","lhf")
     echo cfg.gets("Author","name")
     
 Creating a configuration file.
