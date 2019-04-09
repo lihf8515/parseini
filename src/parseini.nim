@@ -724,6 +724,7 @@ proc gets*(dict: Config, section, key: string): seq[string] =
 
 proc set*(dict: var Config, section, key, value: string) =
   ## Sets the Key value of the specified Section.
+  ## If key exists, modify its value, or if key does not exist, add it.
   var tp: tuple[sec: SectionPair, kv: OrderedTableRef[string, KeyValPair]]
   var t = newOrderedTable[string, KeyValPair]()
   var kvp: KeyValPair
@@ -750,7 +751,7 @@ proc set*(dict: var Config, section, key, value: string) =
       else:
         kvp.token = "="
       kvp.value = "\"" & value & "\""
-      t[key] = kvp
+      t.add(key, kvp)
     tp.kv = t
     dict[section] = tp
   else:
@@ -759,7 +760,37 @@ proc set*(dict: var Config, section, key, value: string) =
     else:
       kvp.token = "="
     kvp.value = "\"" & value & "\""
-    t[key] = kvp
+    t.add(key, kvp)
+    tp.kv = t
+    tp.sec.tokenLeft = "["
+    tp.sec.tokenRight = "]"
+    dict[section] = tp
+
+proc add*(dict: var Config, section, key, value: string) =
+  ## Add the Key value of the specified Section.
+  ## Whether there is a key, add it. This method is often used to 
+  ## add duplicate key with multiple values.
+  var tp: tuple[sec: SectionPair, kv: OrderedTableRef[string, KeyValPair]]
+  var t = newOrderedTable[string, KeyValPair]()
+  var kvp: KeyValPair
+  if dict.hasKey(section):
+    tp = dict[section]
+    t = tp.kv
+    if key.startsWith("--"):
+      kvp.token = ":"
+    else:
+      kvp.token = "="
+    kvp.value = "\"" & value & "\""
+    t.add(key, kvp)
+    tp.kv = t
+    dict[section] = tp
+  else:
+    if key.startsWith("--"):
+      kvp.token = ":"
+    else:
+      kvp.token = "="
+    kvp.value = "\"" & value & "\""
+    t.add(key, kvp)
     tp.kv = t
     tp.sec.tokenLeft = "["
     tp.sec.tokenRight = "]"
