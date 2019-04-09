@@ -12,7 +12,7 @@ and you can specify annotation delimiters.
 
 Here is an example of how to use the configuration file parser:
 =============================================================
-::
+
     import
       os, parseini, strutils, streams
 
