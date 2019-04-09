@@ -10,7 +10,7 @@ The module supports annotation statements, does not delete comment
 statements and redundant blank characters, leaving the original style
 and you can specify annotation delimiters.
 
-Here is an example of how to use the configuration file parser:
+Here is an example of how to use the configuration file parser.
 =============================================================
 
     import
@@ -48,13 +48,13 @@ This is a simple example of a configuration file.
     qq="10214028"
     email="lihaifeng@wxm.com"
     
-Specifies the annotation symbol, the default annotation symbol is "#;"
+Specifies the annotation symbol, the default annotation symbol is "#;".
 =====================================================================
 
     import parseini
     var cfg=loadConfig("config.ini","&")
     
-Support for read-write multivalued key
+Support for read-write multivalued key.
 ======================================
     [Author]
     name="lihf8515"
