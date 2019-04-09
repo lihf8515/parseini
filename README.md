@@ -35,7 +35,6 @@ Here is an example of how to use the configuration file parser:
     else:
       echo("cannot open: " & paramStr(1))
 
-
 This is a simple example of a configuration file.
 ===============================================
 
@@ -48,6 +47,12 @@ This is a simple example of a configuration file.
     qq="10214028"
     email="lihaifeng@wxm.com"
 
+Support for reading multivalued KEY
+===================================
+    import parseini
+    var cfg=newConfig()
+    cfg.gets("Author","name")
+    
 Creating a configuration file.
 ============================
 
