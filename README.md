@@ -49,6 +49,10 @@ This is a simple example of a configuration file.
 
 Support for reading multivalued KEY
 ===================================
+    [Author]
+    name="lihf8515"
+    name = Li haifeng
+
     import parseini
     var cfg=newConfig()
     cfg.gets("Author","name")
