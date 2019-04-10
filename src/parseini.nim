@@ -295,186 +295,141 @@ proc ignoreMsg*(c: CfgParser, e: CfgEvent): string {.rtl, extern: "npc$1".} =
 # =========================================================================
 
 proc replace(s: string): string =
-  var d = ""
-  var i = 0
-  while i < s.len():
-    if s[i] == '\\':
-      d.add(r"\\")
-    elif s[i] == '\c' and s[i+1] == '\L':
-      d.add(r"\n")
-      inc(i)
-    elif s[i] == '\c':
-      d.add(r"\n")
-    elif s[i] == '\L':
-      d.add(r"\n")
+  result = ""
+  for c in s:
+    case c
+    of '\\':
+      result.add(r"\\")
+    of {'\c', '\L'}:
+      result.add(r"\n")
     else:
-      d.add(s[i])
-    inc(i)
-  result = d
-
-proc skipCRLF(c: var CfgParser) =
-  var pos = c.bufpos
-  pos = handleCRLF(c, pos)
-  c.bufpos = pos
+      result.add(c)
 
 proc mySplit(s: string): tuple =
-  var l=len(s)-1
+  var ll=s.len-1
   var t: tuple[front: string, rear: string]
-  for i in countdown(l, 0):
+  for i in countdown(ll, 0):
     if not (s[i] in {' ', '\t'}):
       t.front = s[0..i]
-      t.rear = s[i+1..l]
+      t.rear = s[i+1..ll]
       break
   result = t
 
 proc readBlank(c: var CfgParser) =
   setLen(c.literal, 0)
-  var pos = c.bufpos
   while true:
-    if c.buf[pos] in {' ', '\t'}:
-      add(c.literal, c.buf[pos])
-      inc(pos)
+    if c.buf[c.bufpos] in {' ', '\t'}:
+      add(c.literal, c.buf[c.bufpos])
+      inc(c.bufpos)
     else:
       break
-  c.bufpos = pos
 
 proc readSection(c: var CfgParser) =
   setLen(c.literal, 0)
-  var pos = c.bufpos
   while true:
-    if c.buf[pos] in {']', '\c', '\L', lexbase.EndOfFile}: break
-    add(c.literal, c.buf[pos])
-    inc(pos)
-  c.bufpos = pos
+    if c.buf[c.bufpos] in {']', '\c', '\L', lexbase.EndOfFile}: break
+    add(c.literal, c.buf[c.bufpos])
+    inc(c.bufpos)
 
 proc readComment(c: var CfgParser) =
   setLen(c.literal, 0)
-  var pos = c.bufpos
   while true:
-    if c.buf[pos] in {'\c', '\L', lexbase.EndOfFile}:
+    if c.buf[c.bufpos] in {'\c', '\L', lexbase.EndOfFile}:
       break
     else:
-      add(c.literal, c.buf[pos])
-      inc(pos)
-  c.bufpos = pos
+      add(c.literal, c.buf[c.bufpos])
+      inc(c.bufpos)
 
 proc readKey(c: var CfgParser) =
   setLen(c.literal, 0)
-  var pos = c.bufpos
   while true:
-    if c.buf[pos] in {'=', ':', '\c', '\L', lexbase.EndOfFile}: break
-    add(c.literal, c.buf[pos])
-    inc(pos)
-  c.bufpos = pos
+    if c.buf[c.bufpos] in {'=', ':', '\c', '\L', lexbase.EndOfFile}: break
+    add(c.literal, c.buf[c.bufpos])
+    inc(c.bufpos)
 
 proc readValue(c: var CfgParser, rawMode: bool) =
   setLen(c.literal, 0)
-  var pos = c.bufpos
-  if (c.buf[pos] == '"') and (c.buf[pos + 1] == '"') and (c.buf[pos + 2] == '"'):
+  if c.buf[c.bufpos] == '"' and c.buf[c.bufpos + 1] == '"' and c.buf[c.bufpos + 2] == '"':
     # long string literal:
-    inc(pos, 3)               # skip """
+    inc(c.bufpos, 3)               # skip """
                               # skip leading newline:
     c.literal = c.literal & "\"\"\""
-    pos = handleCRLF(c, pos)
+    c.bufpos = handleCRLF(c, c.bufpos)
     while true:
-      case c.buf[pos]
+      case c.buf[c.bufpos]
       of '"':
-        if (c.buf[pos + 1] == '"') and (c.buf[pos + 2] == '"'): break
+        if (c.buf[c.bufpos + 1] == '"') and (c.buf[c.bufpos + 2] == '"'): break
         add(c.literal, '"')
-        inc(pos)
+        inc(c.bufpos)
       of '\c', '\L':
-        pos = handleCRLF(c, pos)
+        c.bufpos = handleCRLF(c, c.bufpos)
         add(c.literal, "\n")
       of lexbase.EndOfFile:
         break
       else:
-        add(c.literal, c.buf[pos])
-        inc(pos)
+        add(c.literal, c.buf[c.bufpos])
+        inc(c.bufpos)
     add(c.literal, "\"\"\"")
-    c.bufpos = pos + 3       # skip the three """
+    inc(c.bufpos, 3)       # skip the three """
   else:
     # ordinary string literal
-    if c.buf[pos] == '"':
+    if c.buf[c.bufpos] == '"':
       c.literal = "\""
-      inc(pos)
+      inc(c.bufpos)
       while true:
-        var ch = c.buf[pos]
-        if ch == '"':
-          add(c.literal, ch)
-          inc(pos)
+        case c.buf[c.bufpos]
+        of '"':
+          add(c.literal, c.buf[c.bufpos])
+          inc(c.bufpos)
           break
-        if ch in {'\c', '\L', lexbase.EndOfFile}:
+        of '\c', '\L', lexbase.EndOfFile:
           break
-        if (ch == '\\') and not rawMode:
-          c.bufpos = pos
-          getEscapedChar(c)
-          pos = c.bufpos
+        of '\\':
+          if not rawMode:
+            getEscapedChar(c)
+          else:
+            add(c.literal, c.buf[c.bufpos])
+            inc(c.bufpos)
         else:
-          add(c.literal, ch)
-          inc(pos)
-      c.bufpos = pos
+          add(c.literal, c.buf[c.bufpos])
+          inc(c.bufpos)
     else:
       setLen(c.literal, 0)
-      var pos = c.bufpos
       while true:
-        if c.commentSeparato.contains(c.buf[pos]): break
-        if c.buf[pos] in {'\c', '\L', lexbase.EndOfFile}: break
-        add(c.literal, c.buf[pos])
-        inc(pos)
-      c.bufpos = pos
+        if c.commentSeparato.contains(c.buf[c.bufpos]): break
+        if c.buf[c.bufpos] in {'\c', '\L', lexbase.EndOfFile}: break
+        add(c.literal, c.buf[c.bufpos])
+        inc(c.bufpos)
 
 proc handleLineComment(c: var CfgParser, frontBlank: string): CfgEvent =
   ## Handling the entire line is an annotation situation.
   result.kind = cfgKeyValuePair
   result.keyVal.keyFrontBlank = frontBlank
-  result.key = ""
-  result.keyVal.keyRearBlank = ""
-  result.keyVal.token = ""
-  result.keyVal.valFrontBlank = ""
-  result.keyVal.value = ""
-  result.keyVal.valRearBlank = ""
   readComment(c)
   result.keyVal.comment = c.literal
-  skipCRLF(c)
+  c.bufpos = handleCRLF(c, c.bufpos)
 
 proc handleSectionComment(c: var CfgParser, frontBlank, 
                           sectionFrontBlank: string): CfgEvent =
   ## Handle annotated situations in section
   result.kind = cfgKeyValuePair
   result.keyVal.keyFrontBlank = frontBlank
-  result.key = ""
-  result.keyVal.keyRearBlank = ""
-  result.keyVal.token = ""
-  result.keyVal.valFrontBlank = ""
-  result.keyVal.value = ""
-  result.keyVal.valRearBlank = ""
   readComment(c)
   result.keyVal.comment = '[' & sectionFrontBlank & c.literal
-  skipCRLF(c)
+  c.bufpos = handleCRLF(c, c.bufpos)
 
 proc handleValueComment(c: var CfgParser, ret: var CfgEvent) =
   var temp = mySplit(c.literal)
   ret.keyVal.value = temp[0]
-  # The following `if` statements are intended to be compatible 
-  # with older versions and will be deprecated in the future.
-  #[if temp[0].startsWith("\"\"\"") and temp[0].endsWith("\"\"\""):
-    ret.value = temp[0].substr(3, len(temp[0]) - 4)
-  elif (temp[0].startsWith("r\"") or temp[0].startsWith("R\"")) and temp[0].endsWith('"'):
-    ret.value = temp[0].substr(2, len(temp[0]) - 2)
-  elif temp[0].startsWith('"') and temp[0].endsWith('"'):
-    ret.value = temp[0].substr(1, len(temp[0]) - 2)
-  else:
-    ret.value = temp[0]
-  ]#
   ret.keyVal.valRearBlank = temp[1]
   case c.buf[c.bufpos]
   of '\c', '\L', lexbase.EndOfFile:
     ret.keyVal.comment = ""
-    skipCRLF(c)
+    c.bufpos = handleCRLF(c, c.bufpos)
   else: # read to comment characte
     readComment(c)
     ret.keyVal.comment = c.literal
-    skipCRLF(c)
+    c.bufpos = handleCRLF(c, c.bufpos)
 
 proc next*(c: var CfgParser): CfgEvent {.rtl, extern: "npc$1".} =
   ## retrieves the first/next event. This controls the parser.
@@ -518,7 +473,7 @@ proc next*(c: var CfgParser): CfgEvent {.rtl, extern: "npc$1".} =
         result.sectionVal.tokenRearBlank = c.literal
         readComment(c)
         result.sectionVal.comment = c.literal
-        skipCRLF(c)
+        c.bufpos = handleCRLF(c, c.bufpos)
   else: # is the key value, does the key value processing
     result.kind = cfgKeyValuePair
     result.keyVal.keyFrontBlank = frontBlank
@@ -531,23 +486,12 @@ proc next*(c: var CfgParser): CfgEvent {.rtl, extern: "npc$1".} =
     case c.buf[c.bufpos]
     of '\c', '\L', lexbase.EndOfFile: # did not read `=` or `:`
       if result.kind == cfgKeyValuePair:
-        result.key = ""
-        result.keyVal.keyRearBlank = ""
-        result.keyVal.token = ""
-        result.keyVal.valFrontBlank = ""
-        result.keyVal.value = ""
-        result.keyVal.valRearBlank = ""
         result.keyVal.comment = c.literal
-        skipCRLF(c)
+        c.bufpos = handleCRLF(c, c.bufpos)
       else:
         result.key = temp[0]
         result.keyVal.keyRearBlank = temp[1]
-        result.keyVal.token = ""
-        result.keyVal.valFrontBlank = ""
-        result.keyVal.value = ""
-        result.keyVal.valRearBlank = ""
-        result.keyVal.comment = ""
-        skipCRLF(c)
+        c.bufpos = handleCRLF(c, c.bufpos)
     else:
       result.key = temp[0]
       result.keyVal.keyRearBlank = temp[1]
@@ -560,12 +504,9 @@ proc next*(c: var CfgParser): CfgEvent {.rtl, extern: "npc$1".} =
       case c.buf[c.bufpos]
       of lexbase.EndOfFile: # value not read
         result.keyVal.valFrontBlank = c.literal
-        result.keyVal.value = ""
-        result.keyVal.valRearBlank = ""
-        result.keyVal.comment = ""
-        skipCRLF(c)
+        c.bufpos = handleCRLF(c, c.bufpos)
       of '\c', '\L':
-        skipCRLF(c)
+        c.bufpos = handleCRLF(c, c.bufpos)
         readBlank(c) # read the blank front of the value
         if c.buf[c.bufpos] == '"' and c.buf[c.bufpos+1] == '"' and c.buf[c.bufpos+2] == '"':
           result.keyVal.valFrontBlank = c.literal
@@ -573,10 +514,7 @@ proc next*(c: var CfgParser): CfgEvent {.rtl, extern: "npc$1".} =
           handleValueComment(c, result)
         else:
           result.keyVal.valFrontBlank = c.literal
-          result.keyVal.value = ""
-          result.keyVal.valRearBlank = ""
-          result.keyVal.comment = ""
-          skipCRLF(c)
+          c.bufpos = handleCRLF(c, c.bufpos)
       else: # read valid value
         result.keyVal.valFrontBlank = c.literal
         if c.buf[c.bufpos] == '"':
@@ -607,8 +545,8 @@ proc loadConfig*(stream: Stream, filename: string = "[stream]",
                       # the default value of the current section is "",
                       # which means that the current section is a common
   var p: CfgParser
-  open(p, stream, filename)
   p.commentSeparato = commentSeparato
+  open(p, stream, filename)
   while true:
     var e = next(p)
     case e.kind
