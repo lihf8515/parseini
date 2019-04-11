@@ -627,10 +627,11 @@ proc write*(dict: Config, filename: string) =
 proc get*(dict: Config, section, key: string): string =
   ## Gets the Key value of the specified Section.
   if dict.haskey(section):
-    if dict[section][1].hasKey(key):
-      result = dict[section][1][key].value
-    elif dict[section][1].hasKey('"' & key & '"'):
-      result = dict[section][1]['"' & key & '"'].value
+    let kv = dict[section][1]
+    if kv.hasKey(key):
+      result = kv[key].value
+    elif kv.hasKey('"' & key & '"'):
+      result = kv['"' & key & '"'].value
     if result != "":
       if result.startsWith("\"\"\"") and result.endsWith("\"\"\""):
         result = result.substr(3, len(result) - 4)
@@ -675,11 +676,12 @@ proc set*(dict: var Config, section, key, value: string) =
     elif t.hasKey('"' & key & '"'):
       tempKey = '"' & key & '"'
     if tempKey != "":
-      if t[tempKey].value.startsWith("\"\"\"") and t[tempKey].value.endsWith("\"\"\""):
+      var keyvalue = t[tempKey].value
+      if keyvalue.startsWith("\"\"\"") and keyvalue.endsWith("\"\"\""):
         t[tempKey].value = "\"" & value & "\""
-      elif (t[tempKey].value.startsWith("r\"") or t[tempKey].value.startsWith("R\"")) and t[tempKey].value.endsWith('"'):
+      elif (keyvalue.startsWith("r\"") or keyvalue.startsWith("R\"")) and keyvalue.endsWith('"'):
         t[tempKey].value = "\"" & value & "\""
-      elif t[tempKey].value.startsWith('"') and t[tempKey].value.endsWith('"'):
+      elif keyvalue.startsWith('"') and keyvalue.endsWith('"'):
         t[tempKey].value = "\"" & value & "\""
       else:
         t[tempKey].value = replace(value)
