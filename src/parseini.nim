@@ -125,23 +125,20 @@ type
     cfgOption,         # a ``--key=value`` command line option
     cfgError           # an error occurred during parsing
 
-  CfgEvent* = object of RootObj    # describes a parsing event
-    case kind*: CfgEventKind       # the kind of the event
-    of cfgEof: nil
-    of cfgSectionStart:
-      section*: string             # `section` contains the name of the
-      sectionVal*: SectionPair     # parsed section start (syntax: ``[section]``)
-                                   # 'sectionVal' is the other part of `section`
-    of cfgKeyValuePair, cfgOption:
-      key*: string                 # contains the (key, value) pair if an option.
-      keyVal*: KeyValPair          # of the form ``--key: value`` or an ordinary
-                                   # ``key= value`` pair has been parsed.
-                                   # ``value==""`` if it was not specified in the
-                                   # configuration file.
+  CfgEvent* = object of RootObj  # describes a parsing event
+    kind*: CfgEventKind          # the kind of the event
+    section*: string             # `section` contains the name of the
+    sectionVal*: SectionPair     # parsed section start (syntax: ``[section]``)
+                                 # 'sectionVal' is the other part of `section`
+    key*: string                 # contains the (key, value) pair if an option.
+    keyVal*: KeyValPair          # of the form ``--key: value`` or an ordinary
+                                 # ``key= value`` pair has been parsed.
+                                 # ``value==""`` if it was not specified in the
+                                 # configuration file.
                                  
-    of cfgError:                   # the parser encountered an error: `msg`
-      msg*: string                 # contains the error message. No exceptions
-                                   # are thrown if a parse error occurs.
+    msg*: string                 # the parser encountered an error: `msg`
+                                 # contains the error message. No exceptions
+                                 # are thrown if a parse error occurs.
 
   SectionPair = tuple            
     tokenFrontBlank: string     # Blank in front of the `[`
