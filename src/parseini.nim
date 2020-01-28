@@ -658,7 +658,7 @@ proc gets*(dict: Config, section, key: string): seq[string] =
           s.add(kv[1].value)
   result = s
 
-proc set*(dict: var Config, section, key, value: string) =
+proc set*(dict: var Config, section, key, value: string, quotationMarks: string = "\"") =
   ## Sets the Key value of the specified Section.
   ## If key exists, modify its value, or if key does not exist, add it.
   var tp: tuple[sec: SectionPair, kv: OrderedTableRef[string, KeyValPair]]
@@ -673,21 +673,13 @@ proc set*(dict: var Config, section, key, value: string) =
     elif t.hasKey('"' & key & '"'):
       tempKey = '"' & key & '"'
     if tempKey != "":
-      var keyvalue = t[tempKey].value
-      if keyvalue.startsWith("\"\"\"") and keyvalue.endsWith("\"\"\""):
-        t[tempKey].value = "\"" & value & "\""
-      elif (keyvalue.startsWith("r\"") or keyvalue.startsWith("R\"")) and keyvalue.endsWith('"'):
-        t[tempKey].value = "\"" & value & "\""
-      elif keyvalue.startsWith('"') and keyvalue.endsWith('"'):
-        t[tempKey].value = "\"" & value & "\""
-      else:
-        t[tempKey].value = replace(value)
+      t[tempKey].value = quotationMarks & value & quotationMarks
     else:
       if key.startsWith("--"):
         kvp.token = ":"
       else:
         kvp.token = "="
-      kvp.value = "\"" & value & "\""
+      kvp.value = quotationMarks & value & quotationMarks
       t.add(key, kvp)
     tp.kv = t
     dict[section] = tp
@@ -696,14 +688,14 @@ proc set*(dict: var Config, section, key, value: string) =
       kvp.token = ":"
     else:
       kvp.token = "="
-    kvp.value = "\"" & value & "\""
+    kvp.value = quotationMarks & value & quotationMarks
     t.add(key, kvp)
     tp.kv = t
     tp.sec.tokenLeft = "["
     tp.sec.tokenRight = "]"
     dict[section] = tp
 
-proc add*(dict: var Config, section, key, value: string) =
+proc add*(dict: var Config, section, key, value: string, quotationMarks: string = "\"") =
   ## Add the Key value of the specified Section.
   ## Whether there is a key, add it. This method is often used to 
   ## add duplicate key with multiple values.
@@ -717,7 +709,7 @@ proc add*(dict: var Config, section, key, value: string) =
       kvp.token = ":"
     else:
       kvp.token = "="
-    kvp.value = "\"" & value & "\""
+    kvp.value = quotationMarks & value & quotationMarks
     t.add(key, kvp)
     tp.kv = t
     dict[section] = tp
@@ -726,7 +718,7 @@ proc add*(dict: var Config, section, key, value: string) =
       kvp.token = ":"
     else:
       kvp.token = "="
-    kvp.value = "\"" & value & "\""
+    kvp.value = quotationMarks & value & quotationMarks
     t.add(key, kvp)
     tp.kv = t
     tp.sec.tokenLeft = "["
