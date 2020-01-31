@@ -93,11 +93,13 @@ Reading a configuration file.
     echo pname & "\n" & name & "\n" & qq & "\n" & email
 
 Modifying a configuration file.
-=============================
+Add specify whether 'value' uses quotation marks note.
+======================================================
 
     import parseini
     var cfg = loadConfig("config.ini")
     cfg.set("Author","name","lhf")
+    cfg.set("Author","qq","10214028",false)
     cfg.write("config.ini")
     echo cfg
 
