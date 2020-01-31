@@ -93,8 +93,8 @@ Reading a configuration file.
     echo pname & "\n" & name & "\n" & qq & "\n" & email
 
 Modifying a configuration file.
-Specify whether 'value' uses quotation marks.
-=============================================
+Supports specifying whether 'value' uses quotation marks.
+=========================================================
 
     import parseini
     var cfg = loadConfig("config.ini")
