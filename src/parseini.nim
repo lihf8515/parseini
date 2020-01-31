@@ -93,12 +93,14 @@
 ##     echo pname & "\n" & name & "\n" & qq & "\n" & email
 ##
 ## Modifying a configuration file.
+## Specify whether 'value' uses quotation marks.
 ## ===============================
 ## .. code-block:: nim
 ##
 ##     import parseini
 ##     var cfg = loadConfig("config.ini")
 ##     cfg.set("Author","name","lhf")
+##     cfg.set("Author","qq","10214028",false) 
 ##     cfg.write("config.ini")
 ##     echo cfg
 ##
@@ -661,6 +663,7 @@ proc gets*(dict: Config, section, key: string): seq[string] =
 proc set*(dict: var Config, section, key, value: string, quotationMarks: bool = true) =
   ## Sets the Key value of the specified Section.
   ## If key exists, modify its value, or if key does not exist, add it.
+  ## Specify whether 'value' uses quotation marks.
   var tp: tuple[sec: SectionPair, kv: OrderedTableRef[string, KeyValPair]]
   var t = newOrderedTable[string, KeyValPair]()
   var kvp: KeyValPair
