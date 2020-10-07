@@ -623,7 +623,7 @@ proc write*(dict: Config, filename: string) =
   let fileStream = newFileStream(file)
   dict.write(fileStream)
 
-proc get*(dict: Config, section, key: string): string =
+proc get*(dict: Config, section, key: string, defaultVal: string = ""): string =
   ## Gets the Key value of the specified Section.
   if dict.haskey(section):
     let kv = dict[section][1]
@@ -639,9 +639,9 @@ proc get*(dict: Config, section, key: string): string =
       elif result.startsWith('"') and result.endsWith('"'):
         result = result.substr(1, len(result) - 2)
     else:
-      result = ""
+      result = defaultVal
   else:
-    result = ""
+    result = defaultVal
 
 proc gets*(dict: Config, section, key: string): seq[string] =
   ## Gets multiple values for the specified key.
