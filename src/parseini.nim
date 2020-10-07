@@ -625,6 +625,7 @@ proc write*(dict: Config, filename: string) =
 
 proc get*(dict: Config, section, key: string, defaultVal: string = ""): string =
   ## Gets the Key value of the specified Section.
+  ## Returns the specified default value if the specified key value does not exist.
   if dict.haskey(section):
     let kv = dict[section][1]
     if kv.hasKey(key):
