@@ -535,7 +535,7 @@ proc newConfig*(): Config =
 
 proc loadConfig*(stream: Stream, filename: string = "[stream]",
                  commentSeparato: string = "#;"): Config =
-  ## loadConfig the specified configuration from stream into a new Config
+  ## loadConfig the specified configuration from stream into a new `Config`
   ## instance.`filename` parameter is only used for nicer error messages.
   ## `commentSeparato` default value is `"#;"`
   var dict = newOrderedTable[string, (SectionPair, 
@@ -573,7 +573,7 @@ proc loadConfig*(stream: Stream, filename: string = "[stream]",
   result = dict
 
 proc loadConfig*(filename: string, commentSeparato: string = "#;"): Config =
-  ## loadConfig the specified configuration file into a new Config instance.
+  ## loadConfig the specified configuration file into a new `Config` instance.
   ## `commentSeparato` default value is `"#;"`
   let file = open(filename, fmRead)
   let fileStream = newFileStream(file)
@@ -624,8 +624,8 @@ proc write*(dict: Config, filename: string) =
   dict.write(fileStream)
 
 proc get*(dict: Config, section, key: string, defaultVal: string = ""): string =
-  ## Gets the Key value of the specified Section.
-  ## Returns the specified default value if the specified key value does not exist.
+  ## Gets the key value of the specified Section.
+  ## Returns the specified default value if the specified key does not exist.
   if dict.haskey(section):
     let kv = dict[section][1]
     if kv.hasKey(key):
@@ -662,7 +662,7 @@ proc gets*(dict: Config, section, key: string): seq[string] =
   result = s
 
 proc set*(dict: var Config, section, key, value: string, quotationMarks: bool = true) =
-  ## Sets the Key value of the specified Section.
+  ## Sets the key value of the specified Section.
   ## If key exists, modify its value, or if key does not exist, add it.
   ## Specify whether 'value' uses quotation marks.
   var tp: tuple[sec: SectionPair, kv: OrderedTableRef[string, KeyValPair]]
@@ -709,7 +709,7 @@ proc set*(dict: var Config, section, key, value: string, quotationMarks: bool = 
     dict[section] = tp
 
 proc add*(dict: var Config, section, key, value: string, quotationMarks: bool = true) =
-  ## Add the Key value of the specified Section.
+  ## Add the key value of the specified Section.
   ## Whether there is a key, add it. This method is often used to 
   ## add duplicate key with multiple values.
   var tp: tuple[sec: SectionPair, kv: OrderedTableRef[string, KeyValPair]]
