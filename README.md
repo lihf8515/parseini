@@ -1,12 +1,12 @@
 # parseini
 A high-performance ini parse library for nim.
-The ``parseini`` module implements a high performance configuration file
+the ``parseini`` module implements a high performance configuration file
 parser, evolved from ``parsecfg``.
-The configuration file's syntax is similar to the Windows ``.ini``
-format, but much more powerful, as it is not a line based parser. String
+the configuration file's syntax is similar to the Windows ``.ini``
+format, but much more powerful, as it is not a line based parser. string
 literals, raw string literals and triple quoted string literals are 
-supported as in the Nim programming language.
-The module supports annotation statements, does not delete comment
+supported as in the nim programming language.
+the module supports annotation statements, does not delete comment
 statements and redundant blank characters, leaving the original style
 and you can specify annotation delimiters.
 
