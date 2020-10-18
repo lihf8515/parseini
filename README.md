@@ -10,31 +10,6 @@ the module supports annotation statements, does not delete comment
 statements and redundant blank characters, leaving the original style
 and you can specify annotation delimiters.
 
-Here is an example of how to use the configuration file parser.
-=============================================================
-
-    import
-      os, parseini, strutils, streams
-
-    var f = newFileStream(paramStr(1), fmRead)
-    if f != nil:
-      var p: CfgParser
-      open(p, f, paramStr(1))
-      while true:
-        var e = next(p)
-        case e.kind
-        of cfgEof: break
-        of cfgSectionStart:   ## a ``[section]`` has been parsed
-          echo("new section: " & e.section)
-        of cfgKeyValuePair:
-          echo("key-value-pair: " & e.key & ": " & e.keyVal.value)
-        of cfgOption:
-          echo("command: " & e.key & ": " & e.keyVal.value)
-        of cfgError:
-          echo(e.msg)
-      close(p)
-    else:
-      echo("cannot open: " & paramStr(1))
 
 This is a simple example of a configuration file.
 ===============================================
@@ -90,7 +65,7 @@ returns the specified default value if the specified key does not exist.
     var pname = cfg.get("Package","name")
     var name = cfg.get("Author","name")
     var qq = cfg.get("Author","qq")
-    var email = cfg.get("Author","email","lihaifeng@wxm.com")
+    var email = cfg.get("Author","email","10214028@qq.com")
     echo pname & "\n" & name & "\n" & qq & "\n" & email
 
 Modifying a configuration file.
