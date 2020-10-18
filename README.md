@@ -80,7 +80,8 @@ Creating a configuration file.
     echo cfg
 
 Reading a configuration file.
-===========================
+Returns the specified default value if the specified key does not exist.
+========================================================================
 
     import parseini
     var cfg = loadConfig("config.ini")
@@ -89,7 +90,7 @@ Reading a configuration file.
     var pname = cfg.get("Package","name")
     var name = cfg.get("Author","name")
     var qq = cfg.get("Author","qq")
-    var email = cfg.get("Author","email")
+    var email = cfg.get("Author","email","lihaifeng@wxm.com")
     echo pname & "\n" & name & "\n" & qq & "\n" & email
 
 Modifying a configuration file.
