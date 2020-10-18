@@ -104,7 +104,7 @@ supports specifying whether 'value' uses quotation marks.
     cfg.write("config.ini")
     echo cfg
 
-deleting a section key in a configuration file.
+Deleting a section key in a configuration file.
 =============================================
 
     import parseini
