@@ -80,7 +80,7 @@ Creating a configuration file.
     echo cfg
 
 Reading a configuration file.
-Returns the specified default value if the specified key does not exist.
+returns the specified default value if the specified key does not exist.
 ========================================================================
 
     import parseini
@@ -94,7 +94,7 @@ Returns the specified default value if the specified key does not exist.
     echo pname & "\n" & name & "\n" & qq & "\n" & email
 
 Modifying a configuration file.
-Supports specifying whether 'value' uses quotation marks.
+supports specifying whether 'value' uses quotation marks.
 =========================================================
 
     import parseini
@@ -104,7 +104,7 @@ Supports specifying whether 'value' uses quotation marks.
     cfg.write("config.ini")
     echo cfg
 
-Deleting a section key in a configuration file.
+deleting a section key in a configuration file.
 =============================================
 
     import parseini
