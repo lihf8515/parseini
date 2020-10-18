@@ -39,13 +39,14 @@ var ss = newStringStream()
 dict1.write(ss)
 
 ## Reading a configuration file.
+## returns the specified default value if the specified key does not exist.
 var dict2 = loadConfig(newStringStream(ss.data))
 var charset = dict2.get("","charset")
 var threads = dict2.get("Package","--threads")
 var pname = dict2.get("Package","name")
 var name = dict2.get("Author","name")
 var qq = dict2.get("Author","qq")
-var email = dict2.get("Author","email")
+var email = dict2.get("Author","email","10214028@qq.com")
 echo charset
 echo threads
 echo pname
