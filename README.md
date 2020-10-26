@@ -12,7 +12,7 @@ and you can specify annotation delimiters.
 
 
 This is a simple example of a configuration file.
-===============================================
+=================================================
 
     charset="utf-8"
     [Package]
@@ -23,14 +23,14 @@ This is a simple example of a configuration file.
     qq="10214028"
     email="lihaifeng@wxm.com"
     
-Specifies the annotation symbol, the default annotation symbol is "#;".
-=====================================================================
+Specifies the annotation symbol, the default annotation symbol is "#" and ";".
+==============================================================================
 
     import parseini
     var cfg=loadConfig("config.ini","&")
     
 Support for read-write multivalued key.
-======================================
+=======================================
     [Author]
     name="lihf8515"
     name = Li haifeng
@@ -41,7 +41,7 @@ Support for read-write multivalued key.
     echo cfg.gets("Author","name")
     
 Creating a configuration file.
-============================
+==============================
 
     import parseini
     var cfg=newConfig()
@@ -75,12 +75,12 @@ supports specifying whether 'value' uses quotation marks.
     import parseini
     var cfg = loadConfig("config.ini")
     cfg.set("Author","name","lhf")
-    cfg.set("Author","qq","10214028",false)
+    cfg.set("Author","qq","10214028",false) # Do not use double quotes for storage
     cfg.write("config.ini")
     echo cfg
 
 Deleting a section key in a configuration file.
-=============================================
+===============================================
 
     import parseini
     var cfg = loadConfig("config.ini")
