@@ -75,7 +75,7 @@ supports specifying whether 'value' uses quotation marks.
     import parseini
     var cfg = loadConfig("config.ini")
     cfg.set("Author","name","lhf")
-    cfg.set("Author","qq","10214028",false) # Do not use double quotes
+    cfg.set("Author","qq","10214028",false) # Do not use double quotes for storage
     cfg.write("config.ini")
     echo cfg
 
