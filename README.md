@@ -58,7 +58,6 @@ returns the specified default value if the specified key does not exist.
     echo pname & "\n" & name & "\n" & qq & "\n" & email
 
 Modifying a configuration file.
-supports specifying whether 'value' uses quotation marks.
 =========================================================
 
     import parseini
