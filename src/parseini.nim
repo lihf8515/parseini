@@ -190,7 +190,7 @@ type
     of cfgEof: nil
     of cfgSectionStart:
       section*: string          ## `section` contains the name of the
-                                ## parsed section start (syntax: ``[section]``)
+                                ## parsed section start (syntax: `[section]`)
       sectionRelated*: SectionRelated
                                 ## 'sectionRelated' is the other part of `section`
                                 ## This field is set to keep the original
@@ -199,9 +199,9 @@ type
                                 ## after modification.
     of cfgKeyValuePair, cfgOption:
       key*, value*: string      ## contains the (key, value) pair if an option
-                                ## of the form ``--key: value`` or an ordinary
-                                ## ``key= value`` pair has been parsed.
-                                ## ``value==""`` if it was not specified in the
+                                ## of the form `--key: value` or an ordinary
+                                ## `key= value` pair has been parsed.
+                                ## `value==""` if it was not specified in the
                                 ## configuration file.
       keyValueRelated*: KeyValueRelated
                                 ## 'keyValueRelated' is the other part of `key` and
@@ -251,7 +251,7 @@ type
   CfgParser* = object of BaseLexer ## the parser object.
     tok: Token
     filename: string
-    commentSymbol: string       # This field is set to allow the user to
+    commentSymbol: set[char]   # This field is set to allow the user to
                                 # customize the comment symbol.
     blankAndComment: tuple[blank: string, comment: string]
                                 # Blank and comments currently read
@@ -274,7 +274,7 @@ proc open*(c: var CfgParser, input: Stream, filename: string,
   c.filename = filename
   c.tok.kind = tkInvalid
   c.tok.literal = ""
-  c.commentSymbol = "#;" # Default comment symbol.
+  c.commentSymbol = {'#', ';'} # Default comment symbol.
   inc(c.lineNumber, lineOffset)
   rawGetTok(c)
 
@@ -389,7 +389,7 @@ proc skip(c: var CfgParser) =
     if c.buf[pos] == ' ' or c.buf[pos] == '\t':
       blank.add(c.buf[pos])
       inc(pos)
-    elif c.commentSymbol.contains($c.buf[pos]):
+    elif c.commentSymbol.contains(c.buf[pos]):
       while not (c.buf[pos] in {'\c', '\L', lexbase.EndOfFile}):
         comment.add(c.buf[pos])
         inc(pos)
@@ -640,6 +640,8 @@ proc getSection(c: var CfgParser, kind: CfgEventKind): CfgEvent =
     if c.tok.kind == tkBracketRi:
       result.sectionRelated.tokenRight = c.tok.literal
       rawGetTok(c) # Gets blank and comment after `]`
+      if c.tok.kind == tkEof:
+        return
       if c.tok.literal == "\n":
         result.sectionRelated.tokenRearBlank = c.blankAndComment.blank
         result.sectionRelated.comment = c.blankAndComment.comment
@@ -664,10 +666,14 @@ proc getKeyValuePair(c: var CfgParser, kind: CfgEventKind): CfgEvent =
     if result.kind == cfgError: # Error parsing, return
       return
     rawGetTok(c) # Get the blank and comment after key
+    if c.tok.kind == tkEof:
+      return
     if c.tok.literal == "=" or c.tok.literal == ":": # Get token `=` or `:`
       result.keyValueRelated.keyRearBlank = c.blankAndComment.blank
       result.keyValueRelated.token = c.tok.literal
       rawGetTok(c) # Get the blank before value
+      if c.tok.kind == tkEof:
+        return
       if c.tok.literal != "\n":
         result.keyValueRelated.valFrontBlank = c.blankAndComment.blank
         getContent(c, result, "value") # Gets the contents of 'value'
@@ -682,7 +688,7 @@ proc getKeyValuePair(c: var CfgParser, kind: CfgEventKind): CfgEvent =
     elif c.tok.literal == "":
       result = CfgEvent(kind: cfgError,
         msg: errorStr(c, "not expected character:" & c.buf[c.bufpos]))
-    elif c.commentSymbol.contains(c.tok.literal):
+    elif c.commentSymbol.contains(c.tok.literal[0]):
       result.keyValueRelated.valRearBlank = c.blankAndComment.blank
       result.keyValueRelated.comment = c.blankAndComment.comment # End-of-line comments
     else:
@@ -700,7 +706,7 @@ proc next*(c: var CfgParser): CfgEvent {.rtl, extern: "npc$1".} =
     # Generates `key` for blank and comment lines.
     result.keyValueRelated.keyStringKind = skSymbol
     result.keyValueRelated.valueStringKind = skSymbol
-    result.key = "Nim parsecfg blank and comment line_" & $c.getLine()
+    result.key = "BlankAndCommentLine" & $c.getLine()
     result.value = ""
     result.keyValueRelated.valRearBlank = c.blankAndComment.blank
     result.keyValueRelated.comment = c.blankAndComment.comment
@@ -733,22 +739,22 @@ type
 
   SectionItem = tuple
     sectionRelated: SectionRelated
-    keyValue: <//>OrderedTableRef[string, KeyValueItem]
+    keyValue: OrderedTableRef[string, KeyValueItem]
 
   KeyValueItem = tuple
     value: string
     keyValueRelated: KeyValueRelated
 
-proc newConfig*(): <//>Config =
+proc newConfig*(): Config =
   ## Creates a new configuration table.
   ## Useful when wanting to create a configuration file.
   result = newOrderedTable[string, SectionItem]()
 
 proc loadConfig*(stream: Stream, filename: string = "[stream]",
-                 commentSymbol = "#;"): <//>Config =
+                 commentSymbol = {'#', ';'}): Config =
   ## Loads the specified configuration from stream into a new Config instance.
   ## `filename` parameter is only used for nicer error messages.
-  ## `commentSymbol` default value is `"#;"`
+  ## `commentSymbol` default value is `#;`
   var dict = newOrderedTable[string, SectionItem]()
   var curSection = "" ## Current section,
                       ## the default value of the current section is "",
@@ -763,14 +769,14 @@ proc loadConfig*(stream: Stream, filename: string = "[stream]",
       break
     of cfgSectionStart: # Only look for the first time the Section
       var tp: SectionItem
-      var t = <//>OrderedTableRef[string, KeyValueItem]()
+      var t = OrderedTableRef[string, KeyValueItem]()
       curSection = e.section
       tp.sectionRelated = e.sectionRelated
       tp.keyValue = t
       dict[curSection] = tp
     of cfgKeyValuePair:
       var tp: SectionItem
-      var t = <//>OrderedTableRef[string, KeyValueItem]()
+      var t = OrderedTableRef[string, KeyValueItem]()
       if dict.hasKey(curSection):
         tp = dict[curSection]
         t = tp.keyValue
@@ -779,7 +785,7 @@ proc loadConfig*(stream: Stream, filename: string = "[stream]",
       dict[curSection] = tp
     of cfgOption:
       var tp: SectionItem
-      var t = <//>OrderedTableRef[string, KeyValueItem]()
+      var t = OrderedTableRef[string, KeyValueItem]()
       if dict.hasKey(curSection):
         tp = dict[curSection]
         t = tp.keyValue
@@ -792,9 +798,9 @@ proc loadConfig*(stream: Stream, filename: string = "[stream]",
   close(p)
   result = dict
 
-proc loadConfig*(filename: string, commentSymbol = "#;"): <//>Config =
+proc loadConfig*(filename: string, commentSymbol = {'#', ';'}): Config =
   ## Loads the specified configuration file into a new Config instance.
-  ## `commentSymbol` default value is `"#;"`
+  ## `commentSymbol` default value is `#;`
   let file = open(filename, fmRead)
   let fileStream = newFileStream(file)
   defer: fileStream.close()
@@ -842,7 +848,7 @@ proc writeConfig*(dict: Config, stream: Stream) =
       var newKey = ""
       s = ""
       s.add(kv.keyValueRelated.keyFrontBlank)
-      if not key.startsWith("Nim parsecfg blank and comment line_"): # blank and comment line
+      if not key.startsWith("BlankAndCommentLine"): # blank and comment line
         newKey = key
       if kv.keyValueRelated.keyStringKind == skLongString:
         if newKey.startsWith("--"):
@@ -899,7 +905,7 @@ proc writeConfig*(dict: Config, filename: string) =
 proc getSectionValue*(dict: Config, section, key: string, defaultVal = ""): string =
   ## Gets the key value of the specified Section.
   ## Returns the specified default value if the specified key does not exist.
-  if dict.haskey(section):
+  if dict.hasKey(section):
     let kv = dict[section].keyValue
     if kv.hasKey(key):
       result = kv[key].value
@@ -911,7 +917,7 @@ proc getSectionValue*(dict: Config, section, key: string, defaultVal = ""): stri
 proc setSectionKey*(dict: var Config, section, key, value: string) =
   ## Sets the Key value of the specified Section.
   var tp: SectionItem
-  var kv = <//>OrderedTableRef[string, KeyValueItem]()
+  var kv = OrderedTableRef[string, KeyValueItem]()
   var kvi: KeyValueItem
   if dict.hasKey(section): # modify section
     tp = dict[section]
@@ -954,7 +960,7 @@ proc delSection*(dict: var Config, section: string) =
 
 proc delSectionKey*(dict: var Config, section, key: string) =
   ## Deletes the key of the specified section.
-  if dict.haskey(section):
+  if dict.hasKey(section):
     if dict[section].keyValue.hasKey(key):
       if dict[section].keyValue.len() == 1:
         dict.del(section)
