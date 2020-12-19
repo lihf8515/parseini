@@ -64,7 +64,7 @@ supports specifying whether 'value' uses quotation marks.
     import parseini
     var cfg = loadConfig("config.ini")
     cfg.setSectionKey("Author","name","lhf")
-    cfg.setSectionKey("Author","qq","10214028",false) # Do not use double quotes for storage
+    cfg.setSectionKey("Author","qq","10214028")
     cfg.write("config.ini")
     echo cfg
 
