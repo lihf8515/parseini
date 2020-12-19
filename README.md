@@ -40,7 +40,7 @@ Creating a configuration file.
     cfg.setSectionKey("Author","name","lihf8515")
     cfg.setSectionKey("Author","qq","10214028")
     cfg.setSectionKey("Author","email","lihaifeng@wxm.com")
-    cfg.write("config.ini")
+    cfg.writeConfig("config.ini")
     echo cfg
 
 Reading a configuration file.
@@ -64,7 +64,7 @@ Modifying a configuration file.
     var cfg = loadConfig("config.ini")
     cfg.setSectionKey("Author","name","lhf")
     cfg.setSectionKey("Author","qq","10214028")
-    cfg.write("config.ini")
+    cfg.writeConfig("config.ini")
     echo cfg
 
 Deleting a section key in a configuration file.
@@ -73,5 +73,5 @@ Deleting a section key in a configuration file.
     import parseini
     var cfg = loadConfig("config.ini")
     cfg.delSectionKey("Author","email")
-    cfg.write("config.ini")
+    cfg.writeConfig("config.ini")
     echo cfg
