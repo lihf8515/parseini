@@ -29,24 +29,24 @@ import parseini, streams
 
 ## Creating a configuration file.
 var dict1=newConfig()
-dict1.set("","charset","utf-8")
-dict1.set("Package","name","hello")
-dict1.set("Package","--threads","on")
-dict1.set("Author","name","lihf8515")
-dict1.set("Author","qq","10214028")
-dict1.set("Author","email","lihaifeng@wxm.com")
+dict1.setSectionKey("","charset","utf-8")
+dict1.setSectionKey("Package","name","hello")
+dict1.setSectionKey("Package","--threads","on")
+dict1.setSectionKey("Author","name","lihf8515")
+dict1.setSectionKey("Author","qq","10214028")
+dict1.setSectionKey("Author","email","lihaifeng@wxm.com")
 var ss = newStringStream()
 dict1.write(ss)
 
 ## Reading a configuration file.
 ## returns the specified default value if the specified key does not exist.
 var dict2 = loadConfig(newStringStream(ss.data))
-var charset = dict2.get("","charset")
-var threads = dict2.get("Package","--threads")
-var pname = dict2.get("Package","name")
-var name = dict2.get("Author","name")
-var qq = dict2.get("Author","qq")
-var email = dict2.get("Author","email","10214028@qq.com")
+var charset = dict2.getSectionValue("","charset")
+var threads = dict2.getSectionValue("Package","--threads")
+var pname = dict2.getSectionValue("Package","name")
+var name = dict2.getSectionValue("Author","name")
+var qq = dict2.getSectionValue("Author","qq")
+var email = dict2.getSectionValue("Author","email","10214028@qq.com")
 echo charset
 echo threads
 echo pname
@@ -58,13 +58,13 @@ echo "==="
 
 ## Modifying a configuration file.
 var dict3 = loadConfig(newStringStream(ss.data))
-dict3.set("Author","name","lhf")
+dict3.setSectionKey("Author","name","lhf")
 write(stdout, $dict3)
 
 echo "==="
 
 ## Deleting a section key in a configuration file.
 var dict4 = loadConfig(newStringStream(ss.data))
-dict4.del("Author","email")
+dict4.delSectionKey("Author","email")
 write(stdout, $dict4)
 
