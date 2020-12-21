@@ -8,7 +8,7 @@ literals, raw string literals and triple quoted string literals are
 supported as in the nim programming language.
 the module supports annotation statements, does not delete comment
 statements and redundant blank characters, leaving the original style
-and you can specify annotation delimiters.
+and you can specify comment symbol.
 
 
 This is a simple example of a configuration file.
@@ -23,11 +23,11 @@ This is a simple example of a configuration file.
     qq="10214028"
     email="lihaifeng@wxm.com"
     
-Specifies the annotation symbol, the default annotation symbol is "#" and ";".
+Specifies the comment symbol, the default comment symbol is "#" and ";".
 ==============================================================================
 
     import parseini
-    var cfg=loadConfig("config.ini","&")
+    var cfg=loadConfig("config.ini", {'&'})
     
 Creating a configuration file.
 ==============================
