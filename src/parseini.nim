@@ -7,11 +7,16 @@
 #    distribution, for details about the copyright.
 #
 
-## The `parsecfg` module implements a high performance configuration file
-## parser. The configuration file's syntax is similar to the Windows `.ini`
-## format, but much more powerful, as it is not a line based parser. String
-## literals, raw string literals and triple quoted string literals are supported
-## as in the Nim programming language.
+## A high-performance ini parse library for nim.
+## the ``parseini`` module implements a high performance configuration file
+## parser, evolved from ``parsecfg``.
+## the configuration file's syntax is similar to the Windows ``.ini``
+## format, but much more powerful, as it is not a line based parser. string
+## literals, raw string literals and triple quoted string literals are 
+## supported as in the nim programming language.
+## the module supports annotation statements, does not delete comment
+## statements and redundant blank characters, leaving the original style
+## and you can specify annotation delimiters.
 ##
 ## Example of how a configuration file may look like:
 ##
@@ -706,7 +711,7 @@ proc next*(c: var CfgParser): CfgEvent {.rtl, extern: "npc$1".} =
     # Generates `key` for blank and comment lines.
     result.keyValueRelated.keyStringKind = skSymbol
     result.keyValueRelated.valueStringKind = skSymbol
-    result.key = "BlankAndCommentLine" & $c.getLine()
+    result.key = "cfgBlankAndCommentLine" & $c.getLine()
     result.value = ""
     result.keyValueRelated.valRearBlank = c.blankAndComment.blank
     result.keyValueRelated.comment = c.blankAndComment.comment
@@ -848,7 +853,7 @@ proc writeConfig*(dict: Config, stream: Stream) =
       var newKey = ""
       s = ""
       s.add(kv.keyValueRelated.keyFrontBlank)
-      if not key.startsWith("BlankAndCommentLine"): # blank and comment line
+      if not key.startsWith("cfgBlankAndCommentLine"): # blank and comment line
         newKey = key
       if kv.keyValueRelated.keyStringKind == skLongString:
         if newKey.startsWith("--"):
