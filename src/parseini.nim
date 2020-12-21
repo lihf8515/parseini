@@ -16,7 +16,7 @@
 ## supported as in the nim programming language.
 ## the module supports annotation statements, does not delete comment
 ## statements and redundant blank characters, leaving the original style
-## and you can specify annotation delimiters.
+## and you can specify comment symbol.
 ##
 ## Example of how a configuration file may look like:
 ##
