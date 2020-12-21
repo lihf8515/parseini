@@ -2,7 +2,7 @@ discard """
   targets: "c js"
 """
 
-import parsecfg1, streams
+import parseini, streams
 
 when not defined(js):
   import os
