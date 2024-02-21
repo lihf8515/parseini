@@ -580,7 +580,7 @@ proc loadConfig*(filename: string, commentSeparato: string = "#;"): Config =
   defer: fileStream.close()
   result = fileStream.loadConfig(filename, commentSeparato)
 
-proc write*(dict: Config, stream: Stream) =
+proc writeConfig*(dict: Config, stream: Stream) =
   ## Writes the contents of the table to the specified stream.
   for section, tp in dict.pairs():
     var secPair = tp[0]
@@ -609,6 +609,10 @@ proc write*(dict: Config, stream: Stream) =
       s.add(kv.comment)
       stream.writeLine(s)
 
+proc write*(dict: Config, stream: Stream) =
+  ## Writes the contents of the table to the specified stream.
+  writeConfig(dict, stream)
+
 proc `$`*(dict: Config): string =
   ## Writes the contents of the table to string.
   let stream = newStringStream()
@@ -616,14 +620,18 @@ proc `$`*(dict: Config): string =
   dict.write(stream)
   result = stream.data
 
-proc write*(dict: Config, filename: string) =
+proc writeConfig*(dict: Config, filename: string) =
   ## Writes the contents of the table to the specified configuration file.
   let file = open(filename, fmWrite)
   defer: file.close()
   let fileStream = newFileStream(file)
-  dict.write(fileStream)
+  dict.writeConfig(fileStream)
 
-proc get*(dict: Config, section, key: string, defaultVal: string = ""): string =
+proc write*(dict: Config, filename: string) =
+  ## Writes the contents of the table to the specified configuration file.
+  writeConfig(dict, filename)
+
+proc getSectionValue*(dict: Config, section, key: string, defaultVal: string = ""): string =
   ## Gets the key value of the specified Section.
   ## Returns the specified default value if the specified key does not exist.
   if dict.haskey(section):
@@ -644,6 +652,11 @@ proc get*(dict: Config, section, key: string, defaultVal: string = ""): string =
   else:
     result = defaultVal
 
+proc get*(dict: Config, section, key: string, defaultVal = ""): string =
+  ## Gets the key value of the specified Section.
+  ## Returns the specified default value if the specified key does not exist.
+  result = getSectionValue(dict, section, key, defaultVal)
+
 proc gets*(dict: Config, section, key: string): seq[string] =
   ## Gets multiple values for the specified key.
   var s: seq[string]
@@ -661,7 +674,7 @@ proc gets*(dict: Config, section, key: string): seq[string] =
           s.add(kv[1].value)
   result = s
 
-proc set*(dict: var Config, section, key, value: string, quotationMarks: bool = true) =
+proc setSectionKey*(dict: var Config, section, key, value: string, quotationMarks: bool = true) =
   ## Sets the key value of the specified Section.
   ## If key exists, modify its value, or if key does not exist, add it.
   ## Specify whether 'value' uses quotation marks.
@@ -708,6 +721,12 @@ proc set*(dict: var Config, section, key, value: string, quotationMarks: bool = 
     tp.sec.tokenRight = "]"
     dict[section] = tp
 
+proc set*(dict: var Config, section, key, value: string, quotationMarks: bool = true) =
+  ## Sets the key value of the specified Section.
+  ## If key exists, modify its value, or if key does not exist, add it.
+  ## Specify whether 'value' uses quotation marks.
+  setSectionKey(dict, section, key, value, quotationMarks)
+
 proc add*(dict: var Config, section, key, value: string, quotationMarks: bool = true) =
   ## Add the key value of the specified Section.
   ## Whether there is a key, add it. This method is often used to 
@@ -744,11 +763,15 @@ proc add*(dict: var Config, section, key, value: string, quotationMarks: bool = 
     tp.sec.tokenRight = "]"
     dict[section] = tp
 
-proc del*(dict: var Config, section: string) =
+proc delSection*(dict: var Config, section: string) =
   ## Deletes the specified section and all of its sub keys.
   tables.del(dict, section)
 
-proc del*(dict: var Config, section, key: string) =
+proc del*(dict: var Config, section: string) =
+  ## Deletes the specified section and all of its sub keys.
+  delSection(dict, section)
+
+proc delSectionKey*(dict: var Config, section, key: string) =
   ## Delete the key of the specified section.
   if dict.haskey(section):
     if dict[section][1].hasKey(key):
@@ -756,3 +779,7 @@ proc del*(dict: var Config, section, key: string) =
         tables.del(dict, section)
       else:
         tables.del(dict[section][1], key)
+
+proc del*(dict: var Config, section, key: string) =
+  ## Deletes the key of the specified section.
+  delSectionKey(dict, section, key)
