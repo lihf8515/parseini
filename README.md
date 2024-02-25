@@ -41,7 +41,7 @@ Support for read-write multivalued key.
     cfg.add("Author","name","lhf")
     echo cfg.gets("Author","name")
     
-Creating a configuration file.
+Create a configuration file.
 ==============================
 
     import parseini
@@ -81,11 +81,13 @@ When the last parameter is false, it indicates that the key value does not need 
     cfg.write("config.ini")
     echo cfg
 
-Delete key value pairs in the configuration file.
+Delete key value pairs from the configuration file. 
+Also supports deleting "Section".
 ===============================================
 
     import parseini
     var cfg = loadConfig("config.ini")
     cfg.del("Author","email")
+    cfg.del("Author")
     cfg.write("config.ini")
     echo cfg
