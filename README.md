@@ -23,7 +23,8 @@ This is a simple example of a configuration file.
     qq="10214028"
     email="lihaifeng@wxm.com"
     
-Specifies the annotation symbol, the default annotation symbol is "#" and ";".
+Specify annotation symbols, default annotation symbols are "#" and ";".
+The following example replaces the annotation symbol with "&".
 ==============================================================================
 
     import parseini
@@ -54,8 +55,9 @@ Creating a configuration file.
     cfg.write("config.ini")
     echo cfg
 
-Reading a configuration file.
-returns the specified default value if the specified key does not exist.
+Read the configuration file.
+If the specified key does not exist, return an empty string.
+Support custom default return values.
 ========================================================================
 
     import parseini
@@ -68,18 +70,18 @@ returns the specified default value if the specified key does not exist.
     var email = cfg.get("Author","email","10214028@qq.com")
     echo pname & "\n" & name & "\n" & qq & "\n" & email
 
-Modifying a configuration file.
-supports specifying whether 'value' uses quotation marks.
+Modify the configuration file. Support whether key values use quotation marks.
+When the last parameter is false, it indicates that the key value does not need to be wrapped in double quotes during actual storage.
 =========================================================
 
     import parseini
     var cfg = loadConfig("config.ini")
     cfg.set("Author","name","lhf")
-    cfg.set("Author","qq","10214028",false) # Do not use double quotes for storage
+    cfg.set("Author","qq","10214028",false)
     cfg.write("config.ini")
     echo cfg
 
-Deleting a section key in a configuration file.
+Delete key value pairs in the configuration file.
 ===============================================
 
     import parseini
