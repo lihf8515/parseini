@@ -18,35 +18,6 @@
 ## and you can specify annotation delimiters.
 ##
 
-##[ Here is an example of how to use the configuration file parser:
-
-.. code-block:: nim
-
-    import
-      os, parseini, strutils, streams
-
-    var f = newFileStream(paramStr(1), fmRead)
-    if f != nil:
-      var p: CfgParser
-      open(p, f, paramStr(1))
-      while true:
-        var e = next(p)
-        case e.kind
-        of cfgEof: break
-        of cfgSectionStart:   ## a ``[section]`` has been parsed
-          echo("new section: " & e.section)
-        of cfgKeyValuePair:
-          echo("key-value-pair: " & e.key & ": " & e.keyVal.value)
-        of cfgOption:
-          echo("command: " & e.key & ": " & e.keyVal.value)
-        of cfgError:
-          echo(e.msg)
-      close(p)
-    else:
-      echo("cannot open: " & paramStr(1))
-
-]##
-
 ## Examples
 ## --------
 ##
@@ -63,56 +34,90 @@
 ##     qq="10214028"
 ##     email="lihaifeng@wxm.com"
 ##
-## Creating a configuration file.
-## ==============================
+    
+## Specify annotation symbols, default annotation symbols are "#" and ";".
+## The following example replaces the annotation symbol with "&".
+## --------
+## 
 ## .. code-block:: nim
 ##
-##     import parseini
-##     var cfg=newConfig()
-##     cfg.set("","charset","utf-8")
-##     cfg.set("Package","name","hello")
-##     cfg.set("Package","--threads","on")
-##     cfg.set("Author","name","lihf8515")
-##     cfg.set("Author","qq","10214028")
-##     cfg.set("Author","email","lihaifeng@wxm.com")
-##     cfg.write("config.ini")
-##     echo cfg
+##  import parseini
+##  var cfg=loadConfig("config.ini","&")
+    
+## Support for read-write multivalued key.
+## --------
+## 
+## ::
+## 
+## [Author]
+## name="lihf8515"
+## name = Li haifeng
 ##
-## Reading a configuration file.
-## =============================
 ## .. code-block:: nim
 ##
-##     import parseini
-##     var cfg = loadConfig("config.ini")
-##     var charset = cfg.get("","charset")
-##     var threads = cfg.get("Package","--threads")
-##     var pname = cfg.get("Package","name")
-##     var name = cfg.get("Author","name")
-##     var qq = cfg.get("Author","qq")
-##     var email = cfg.get("Author","email")
-##     echo pname & "\n" & name & "\n" & qq & "\n" & email
-##
-## Modifying a configuration file.
-## Specify whether 'value' uses quotation marks.
-## ===============================
+## import parseini
+## var cfg=loadConfig("config.ini")
+## cfg.add("Author","name","lhf")
+## echo cfg.gets("Author","name")
+    
+## Create a configuration file.
+## --------
+## 
 ## .. code-block:: nim
 ##
-##     import parseini
-##     var cfg = loadConfig("config.ini")
-##     cfg.set("Author","name","lhf")
-##     cfg.set("Author","qq","10214028",false) 
-##     cfg.write("config.ini")
-##     echo cfg
-##
-## Deleting a section key in a configuration file.
-## ===============================================
+## import parseini
+## var cfg=newConfig()
+## cfg.set("","charset","utf-8")
+## cfg.set("Package","name","hello")
+## cfg.set("Package","--threads","on")
+## cfg.set("Author","name","lihf8515")
+## cfg.set("Author","qq","10214028")
+## cfg.set("Author","email","lihaifeng@wxm.com")
+## cfg.write("config.ini")
+## echo cfg
+
+## Read the configuration file.
+## If the specified key does not exist, return an empty string.
+## Support custom default return values.
+## --------
+## 
 ## .. code-block:: nim
-##
-##     import parseini
-##     var cfg = loadConfig("config.ini")
-##     cfg.del("Author","email")
-##     cfg.write("config.ini")
-##     echo cfg
+## 
+## import parseini
+## var cfg = loadConfig("config.ini")
+## var charset = cfg.get("","charset")
+## var threads = cfg.get("Package","--threads")
+## var pname = cfg.get("Package","name")
+## var name = cfg.get("Author","name")
+## var qq = cfg.get("Author","qq")
+## var email = cfg.get("Author","email","10214028@qq.com")
+## echo pname & "\n" & name & "\n" & qq & "\n" & email
+
+## Modify the configuration file. Support whether key values use quotation marks.
+## When the last parameter is false, it indicates that the key value does not need to be wrapped in double quotes during actual storage.
+## --------
+## 
+## .. code-block:: nim
+## 
+## import parseini
+## var cfg = loadConfig("config.ini")
+## cfg.set("Author","name","lhf")
+## cfg.set("Author","qq","10214028",false)
+## cfg.write("config.ini")
+## echo cfg
+
+## Delete key value pairs from the configuration file. 
+## Also supports deleting "Section".
+## --------
+## 
+## .. code-block:: nim
+## 
+## import parseini
+## var cfg = loadConfig("config.ini")
+## cfg.del("Author","email")
+## cfg.del("Author")
+## cfg.write("config.ini")
+## echo cfg
 
 import
   strutils, lexbase, streams, tables
@@ -537,7 +542,7 @@ proc loadConfig*(stream: Stream, filename: string = "[stream]",
                  commentSeparato: string = "#;"): Config =
   ## loadConfig the specified configuration from stream into a new `Config`
   ## instance.`filename` parameter is only used for nicer error messages.
-  ## `commentSeparato` default value is `"#;"`
+  ## `commentSeparato` default value is `"#"` and `";"`.
   var dict = newOrderedTable[string, (SectionPair, 
                                       OrderedTableRef[string, KeyValPair])]()
   var curSection = "" # Current section,
@@ -574,7 +579,7 @@ proc loadConfig*(stream: Stream, filename: string = "[stream]",
 
 proc loadConfig*(filename: string, commentSeparato: string = "#;"): Config =
   ## loadConfig the specified configuration file into a new `Config` instance.
-  ## `commentSeparato` default value is `"#;"`
+  ## `commentSeparato` default value `"#"` and `";"`.
   let file = open(filename, fmRead)
   let fileStream = newFileStream(file)
   defer: fileStream.close()
