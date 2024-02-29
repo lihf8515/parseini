@@ -44,22 +44,6 @@
 ##  import parseini
 ##  var cfg=loadConfig("config.ini","&")
     
-## Support for read-write multivalued key.
-## --------
-## 
-## ::
-## 
-## [Author]
-## name="lihf8515"
-## name = Li haifeng
-##
-## .. code-block:: nim
-##
-## import parseini
-## var cfg=loadConfig("config.ini")
-## cfg.add("Author","name","lhf")
-## echo cfg.gets("Author","name")
-    
 ## Create a configuration file.
 ## --------
 ## 
@@ -662,23 +646,6 @@ proc get*(dict: Config, section, key: string, defaultVal = ""): string =
   ## Returns the specified default value if the specified key does not exist.
   result = getSectionValue(dict, section, key, defaultVal)
 
-proc gets*(dict: Config, section, key: string): seq[string] =
-  ## Gets multiple values for the specified key.
-  var s: seq[string]
-  s = @[]
-  if dict.haskey(section):
-    for kv in dict[section][1].pairs:
-      if kv[0] == key:
-        if kv[1].value.startsWith("\"\"\"") and kv[1].value.endsWith("\"\"\""):
-          s.add(kv[1].value.substr(3, len(kv[1].value) - 4))
-        elif (kv[1].value.startsWith("r\"") or kv[1].value.startsWith("R\"")) and kv[1].value.endsWith('"'):
-          s.add(kv[1].value.substr(2, len(kv[1].value) - 2))
-        elif kv[1].value.startsWith('"') and kv[1].value.endsWith('"'):
-          s.add(kv[1].value.substr(1, len(kv[1].value) - 2))
-        else:
-          s.add(kv[1].value)
-  result = s
-
 proc setSectionKey*(dict: var Config, section, key, value: string, quotationMarks: bool = true) =
   ## Sets the key value of the specified Section.
   ## If key exists, modify its value, or if key does not exist, add it.
@@ -731,42 +698,6 @@ proc set*(dict: var Config, section, key, value: string, quotationMarks: bool = 
   ## If key exists, modify its value, or if key does not exist, add it.
   ## Specify whether 'value' uses quotation marks.
   setSectionKey(dict, section, key, value, quotationMarks)
-
-proc add*(dict: var Config, section, key, value: string, quotationMarks: bool = true) =
-  ## Add the key value of the specified Section.
-  ## Whether there is a key, add it. This method is often used to 
-  ## add duplicate key with multiple values.
-  var tp: tuple[sec: SectionPair, kv: OrderedTableRef[string, KeyValPair]]
-  var t = newOrderedTable[string, KeyValPair]()
-  var kvp: KeyValPair
-  if dict.hasKey(section):
-    tp = dict[section]
-    t = tp.kv
-    if key.startsWith("--"):
-      kvp.token = ":"
-    else:
-      kvp.token = "="
-    if quotationMarks:
-      kvp.value = "\"" & value & "\""
-    else:
-      kvp.value = value
-    t.add(key, kvp)
-    tp.kv = t
-    dict[section] = tp
-  else:
-    if key.startsWith("--"):
-      kvp.token = ":"
-    else:
-      kvp.token = "="
-    if quotationMarks:
-      kvp.value = "\"" & value & "\""
-    else:
-      kvp.value = value
-    t.add(key, kvp)
-    tp.kv = t
-    tp.sec.tokenLeft = "["
-    tp.sec.tokenRight = "]"
-    dict[section] = tp
 
 proc delSection*(dict: var Config, section: string) =
   ## Deletes the specified section and all of its sub keys.
