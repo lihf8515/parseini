@@ -30,17 +30,6 @@ The following example replaces the annotation symbol with "&".
     import parseini
     var cfg=loadConfig("config.ini","&")
     
-Support for read-write multivalued key.
-=======================================
-    [Author]
-    name="lihf8515"
-    name = Li haifeng
-
-    import parseini
-    var cfg=loadConfig("config.ini")
-    cfg.add("Author","name","lhf")
-    echo cfg.gets("Author","name")
-    
 Create a configuration file.
 ==============================
 
