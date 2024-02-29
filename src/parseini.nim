@@ -720,3 +720,8 @@ proc delSectionKey*(dict: var Config, section, key: string) =
 proc del*(dict: var Config, section, key: string) =
   ## Deletes the key of the specified section.
   delSectionKey(dict, section, key)
+
+iterator sections*(dict: Config): lent string {.since: (1, 5).} =
+  ## Iterates through the sections in the `dict`.
+  for section in dict.keys:
+    yield section
