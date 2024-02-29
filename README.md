@@ -2,6 +2,7 @@
 A high-performance ini parse library for nim.
 the ``parseini`` module implements a high performance configuration file
 parser, evolved from ``parsecfg``.
+Compatible with the 'parsecfg' module.
 the configuration file's syntax is similar to the Windows ``.ini``
 format, but much more powerful, as it is not a line based parser. string
 literals, raw string literals and triple quoted string literals are 
